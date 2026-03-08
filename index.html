@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>駅スタンプ帳</title>
+<style>
+body { font-family: sans-serif; }
+
+#status {
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+#container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 110px);
+  gap: 10px;
+}
+
+.station {
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  text-align: center;
+  background-size: cover;
+  background-position: center;
+  background-color: #f5f5f5;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.station:hover {
+  transform: scale(1.12);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+.unlocked {
+  border: 2px solid #4CAF50;
+}
+</style>
+</head>
+<body>
+
+<h1>駅スタンプ帳</h1>
+<div id="areaButtons">
+  <button onclick="location.href='hokkaido.html'">北海道</button>
+  <button onclick="location.href='tohoku.html'">東北</button>
+  <button onclick="location.href='kanto.html'">北関東</button>
+  <button onclick="location.href='kanto.html'">南関東</button>
+  <button onclick="location.href='chubu.html'">甲信越</button>
+  <button onclick="location.href='chubu.html'">北陸</button>
+  <button onclick="location.href='chubu.html'">東海</button>
+  <button onclick="location.href='kansai.html'">関西</button>
+  <button onclick="location.href='chugoku.html'">中国</button>
+  <button onclick="location.href='shikoku.html'">四国</button>
+  <button onclick="location.href='kyushu.html'">九州</button>
+</div>
+
+<script>
+const container = document.getElementById("container");
+const statusDiv = document.getElementById("status");
+
+async function loadStations() {
+  const response = await fetch("stations.json");
+  const stations = await response.json();
+
+  let obtained = 0;
+
+  for (const station of stations) {
+
+    const div = document.createElement("div");
+    div.className = "station";
+    div.textContent = station.name;
+    div.onclick = () => {
+    window.location.href = `station.html?code=${station.code}`;
+  };
+    container.appendChild(div);
+
+    const imagePath = `images/${station.code}.jpg`;
+
+    try {
+      const imgCheck = await fetch(imagePath);
+      if (imgCheck.ok) {
+        div.style.backgroundImage = `url(${imagePath})`;
+        div.textContent = "";
+        div.classList.add("unlocked");
+        obtained++;
+      }
+    } catch (e) {}
+  }
+
+  const percent = Math.floor((obtained / stations.length) * 100);
+
+statusDiv.textContent =
+  `取得数: ${obtained} / ${stations.length} (${percent}%)`;
+}
+
+loadStations();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<style>
+body { font-family: sans-serif; }
+
+#status {
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+#container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 110px);
+  gap: 10px;
+}
+
+.station {
+  width: 100px;
+  text-align: center;       /* 下に文字をそろえる */
+  margin: 0 auto;
+}
+
+.stamp-image {
+  width: 100px;
+  height: 100px;
+  background-size: cover;
+  background-position: center;
+  border: 2px dashed #ccc;
+  border-radius: 15px;
+  margin-bottom: 5px;       /* 文字との間 */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stamp-image:hover {
+  transform: scale(1.12);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.stamp-label {
+  font-size: 12px;
+  word-wrap: break-word;
+}
+
+.unlocked {
+  border: 2px solid #4CAF50;
+}
+</style>
+</head>
+<body>
+
+<h1>駅一覧</h1>
+<div id="status"></div>
+<div id="container"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const targetLine = "JR久留里線"; // ここは固定でOK
+
+async function loadLines() {
+  const response = await fetch("lines.json");
+  const lineTitles = await response.json();
+  const h1 = document.querySelector("h1");
+  h1.textContent = lineTitles[targetLine] || "JR久留里線";
+}
+
+async function loadStations() {
+  const response = await fetch("stations.json", { cache: "no-store" });
+  const stations = await response.json();
+
+  const order = ["木更津", "祇園", "上総清川", "東清川", "横田", "東横田", "馬来田", "下郡", "小櫃", "俵田", "久留里", "平山", "上総松丘", "上総亀山"]; // スタンプの順番
+
+  stations.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+
+  const container = document.getElementById("container");
+  let obtained = 0;
+
+  for (const station of stations) {
+    if (!station.lineNo.includes(targetLine)) continue;
+
+    const div = document.createElement("div");
+    div.className = "station";
+
+    // 画像
+    const imgDiv = document.createElement("div");
+    imgDiv.className = "stamp-image";
+
+    // ラベル
+    const labelDiv = document.createElement("div");
+    labelDiv.className = "stamp-label";
+    labelDiv.textContent = station.name;
+
+    div.appendChild(imgDiv);
+    div.appendChild(labelDiv);
+    div.onclick = () => {
+      window.location.href = `station.html?code=${station.code}`;
+    };
+    container.appendChild(div);
+
+    const imagePath = `images/${station.code}.jpg`;
+    try {
+      const imgCheck = await fetch(imagePath);
+      if (imgCheck.ok) {
+        imgDiv.style.backgroundImage = `url(${imagePath})`;
+        imgDiv.classList.add("unlocked");
+        obtained++;
+      }
+    } catch(e) {}
+  }
+
+  const statusDiv = document.getElementById("status");
+  statusDiv.textContent = `取得数: ${obtained} / ${stations.filter(s => s.lineNo.includes(targetLine)).length}`;
+}
+
+// 両方呼び出す
+loadLines();
+loadStations();
+
+</script>
+
+<button id="backBtn" style="margin:15px; padding:8px 16px; cursor:pointer;">
+  ← 戻る
+</button>
+<script>
+  document.getElementById("backBtn").onclick = () => {
+  // 元のスタンプ帳ページに戻る
+  window.history.back(); // 直前のページに戻る
+};
+</script>
+</body>
+</html>

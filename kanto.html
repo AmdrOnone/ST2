@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>関東エリア</title>
+<style>
+body { font-family: sans-serif; }
+
+#lineContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 110px);
+  gap: 20px; /* 横並び */
+}
+
+.line {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;      /* JSで設定 */
+  background-color: #1E90FF;
+  z-index: 0;      /* 文字の背後に */
+  transition: height 0.3s ease;
+}
+
+.label {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 1;       /* 前面に表示 */
+}
+
+.label .name {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.label .status {
+  font-size: 12px;
+}
+
+.line:hover {
+  transform: scale(1.06);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.line {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+</style>
+</head>
+<body>
+
+<h1>関東エリア</h1>
+<div id="lineContainer">
+  <div class="line" data-line="いすみ鉄道" data-color="#ffe700" data-name="いすみ鉄道" onclick="location.href='line_いすみ鉄道.html'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+  <div class="line" data-line="伊豆箱根鉄道" data-color="#4086e5" data-name="伊豆箱根鉄道" onclick="location.href='line_伊豆箱根鉄道.html'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+  <div class="line" data-line="江ノ島電鉄" data-color="#09872b" data-name="江ノ島電鉄" onclick="location.href='line_江ノ島電鉄.html'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+  <div class="line" data-line="京王電鉄" data-color="#d6007f" data-name="京王電鉄" onclick="location.href='line_京王電鉄.html'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+  <div class="line" data-line="小湊鐵道" data-color="#ff3700" data-name="小湊鐵道" onclick="location.href='line_小湊鐵道.html'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+  <div class="line" data-line="埼玉高速鉄道" data-color="#2351a5" data-name="埼玉高速鉄道" onclick="location.href='line_埼玉高速鉄道.html'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+  <div class="line" data-line="芝山鉄道" data-color="#007f5a" data-name="芝山鉄道" onclick="location.href='line_芝山鉄道.html'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+  <div class="line" data-line="湘南モノレール" data-color="#1998d5" data-name="湘南モノレール" onclick="location.href='line_湘南モノレール.html'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+  <div class="line" data-line="JR久留里線" data-color="#00B5AD" data-name="JR久留里線" onclick="location.href='line_JR久留里線.html'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+  <div class="line" data-line="JR横浜線" data-color="#80c342" data-name="JR横浜線" onclick="location.href='line_JR横浜線.html'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+  <div class="line" data-line="3" data-color="#32CD32" data-name="JR総武線" onclick="location.href='line_single.html?lineNo=3'">
+    <div class="bar"></div>
+    <div class="label">
+      <div class="name"></div>
+      <div class="status"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function updateLineButtons() {
+  const response = await fetch("stations.json", { cache: "no-store" });
+  const stations = await response.json();
+
+  document.querySelectorAll(".line").forEach(async div => {
+    const lineNo = div.dataset.line;
+    const color = div.dataset.color;
+    const name = div.dataset.name;
+
+    const lineStations = stations.filter(s => s.lineNo.includes(lineNo));
+    const total = lineStations.length;
+
+    let obtained = 0;
+    for (const s of lineStations) {
+      try {
+        const imgCheck = await fetch(`images/${s.code}.jpg`);
+        if (imgCheck.ok) obtained++;
+      } catch(e) {}
+    }
+
+    const percent = total ? (obtained / total) * 100 : 0;
+
+    const barDiv = div.querySelector(".bar");
+    barDiv.style.height = percent + "%";
+    barDiv.style.backgroundColor = color;
+
+    div.querySelector(".label .name").textContent = name;
+    div.querySelector(".label .status").textContent = `${obtained} / ${total} (${percent.toFixed(1)}%)`;
+  });
+}
+
+updateLineButtons();
+</script>
+<button id="backBtn" style="margin:15px; padding:8px 16px; cursor:pointer;">
+  ← 戻る
+</button>
+<script>
+  document.getElementById("backBtn").onclick = () => {
+  // 元のスタンプ帳ページに戻る
+  window.history.back(); // 直前のページに戻る
+};
+</script>
+</body>
+</html>

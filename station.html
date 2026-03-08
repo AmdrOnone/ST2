@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>駅詳細</title>
+<style>
+body { font-family: sans-serif; text-align: center;
+background-color: #f2f2f2; }
+
+#stamp {
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  border-radius: 30px;       /* ← 未取得は丸く */
+  transition: 0.3s ease;     /* ← なめらか変化 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  color: #666;
+}
+
+#stamp.obtained {
+  width: 500px;
+  height: 500px;
+  box-shadow: 0 0px 0px rgba(0,0,0,0.2);
+  border-radius: 0;   /* ← 取得したら角が取れる */
+}
+
+#stationName div {
+  font-size: 16px;
+  color: #555;
+  margin-top: 4px;
+}
+
+</style>
+</head>
+<body>
+<button onclick="history.back()" style="margin:20px; padding:8px 16px;">
+  ← 戻る
+</button>
+<h1 id="stationName"></h1>
+<div id="stamp"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const code = params.get("code");
+
+async function loadStation() {
+  const response = await fetch("stations.json");
+  const stations = await response.json();
+
+  const station = stations.find(s => s.code === code);
+
+  if (station) {
+  const nameDiv = document.getElementById("stationName");
+  nameDiv.textContent = station.name;
+
+  // フリガナがあれば追加
+  if (station.kana) {
+    const kanaDiv = document.createElement("div");
+    kanaDiv.textContent = station.kana;
+    kanaDiv.style.fontSize = "16px";
+    kanaDiv.style.color = "#555";
+    kanaDiv.style.marginTop = "4px";
+    nameDiv.appendChild(kanaDiv);
+  }
+
+  const imagePath = `images/${station.code}.jpg`;
+  const imgCheck = await fetch(imagePath);
+
+  if (imgCheck.ok) {
+    const stamp = document.getElementById("stamp");
+    stamp.style.backgroundImage = `url(${imagePath})`;
+    stamp.classList.add("obtained");   // 取得済み
+  } else {
+    document.getElementById("stamp").textContent = "未取得";
+  }
+}
+}
+
+loadStation();
+</script>
+
+</body>
+</html>
