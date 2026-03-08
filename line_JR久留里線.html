@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-
+<meta name="theme-color" content="#00B5AD">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body { font-family: sans-serif; }
 
@@ -13,19 +14,19 @@ body { font-family: sans-serif; }
 
 #container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 110px);
+  grid-template-columns: repeat(auto-fill, 150px);
   gap: 10px;
 }
 
 .station {
-  width: 100px;
+  width: 130px;
   text-align: center;       /* 下に文字をそろえる */
   margin: 0 auto;
 }
 
 .stamp-image {
-  width: 100px;
-  height: 100px;
+  width: 130px;
+  aspect-ratio: 1 / 1;
   background-size: cover;
   background-position: center;
   border: 2px dashed #ccc;
@@ -47,6 +48,32 @@ body { font-family: sans-serif; }
 .unlocked {
   border: 2px solid #4CAF50;
 }
+
+@media (max-width:768px){
+
+  #container{
+    grid-template-columns: repeat(3, 1fr);
+    gap:16px;
+  }
+
+  .station{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .stamp-image{
+    width:100%;
+    aspect-ratio:1/1;
+  }
+
+  .stamp-label{
+    font-size:14px;
+  }
+
+}
+
 </style>
 </head>
 <body>
